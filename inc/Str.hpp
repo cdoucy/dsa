@@ -11,37 +11,43 @@ namespace dsa {
 
 class String {
 public:
-    String() = default;
+    String();
     ~String() = default;
     explicit String(const char *cString);
+    String(const String &other);
+    String(String &&other) noexcept ;
 
     [[nodiscard]] std::size_t size() const;
     [[nodiscard]] const char *toCString() const;
 
     char operator[](std::size_t index) const;
-    String &operator+(const String &other);
+    String operator+(const String &other) const;
     String &operator+=(const String &other);
+    String &operator=(String &&other) noexcept;
     String &operator=(const String &other);
-    bool operator==(const String &other);
-    bool operator!=(const String &other);
+    bool operator==(const String &other) const;
+    bool operator!=(const String &other) const;
     bool operator<(const String &other);
     bool operator>(const String &other);
     bool operator<=(const String &other);
     bool operator>=(const String &other);
     String substring(std::size_t start, std::size_t end) const;
-    std::size_t find(const String &substr) const;\
+    std::size_t find(const String &substr) const;
     String toLower() const;
     String toUpper() const;
     void insert(size_t idx, char c);
     void remove(size_t idx);
     DynamicArray<String> split(const String &pattern);
-
+    bool isEmpty() const;
+    void reset();
 
 
 
 private:
     DynamicArray<char> _str;
-    std::size_t _size{};
+    std::size_t _size;
+
+    void concat(const String &s);
 };
 
 } // dsa

@@ -34,10 +34,32 @@ namespace dsa
                 this->_array[i] = value;
         };
 
+        DynamicArray(const DynamicArray<T> &other)
+            :   DynamicArray(other._size)
+        {
+            for (std::size_t i = 0; i < other._size; i++)
+                this->_array[i] = other._array[i];
+        }
+
+        DynamicArray(DynamicArray<T> &&other)
+            :   _array(other._array),
+                _size(other._size),
+                _capacity(other._capacity)
+        {
+            other.reset();
+        }
+
         ~DynamicArray()
         {
             delete[] this->_array;
         };
+
+        void reset()
+        {
+            this->_array = new T[DEFAULT_BUF_SIZE];
+            this->_size = 0;
+            this->_capacity = DEFAULT_BUF_SIZE;
+        }
 
         T& operator[](std::size_t index)
         {
@@ -219,6 +241,18 @@ namespace dsa
         const T *data() const
         {
             return this->_array;
+        }
+
+        DynamicArray<T> &operator=(DynamicArray &&other) noexcept
+        {
+            delete []this->_array;
+
+            this->_size = other._size;
+            this->_array = other._array;
+            this->_capacity = other._capacity;
+
+            other.reset();
+            return *this;
         }
 
     private:

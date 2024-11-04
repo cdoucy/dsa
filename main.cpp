@@ -2,17 +2,23 @@
 #include "DynamicArray.hpp"
 #include "Str.hpp"
 #include <vector>
+#include <string>
+#include <DynamicArray.hpp>
 
 int main()
 {
-    dsa::String s("hello");
+    dsa::String s1("foo");
+    dsa::String s2(s1);
 
-    std::cout << s.toCString() << std::endl;
 
-    s += dsa::String(" ");
-    s += dsa::String("world");
+    s2 += dsa::String("bar");
 
-    std::cout << s.toCString() << std::endl;
+    dsa::String s3(std::move(s2));
+
+    s3 += dsa::String("foo");
+
+    s2 += dsa::String("hello");
+
 
     return 0;
 }

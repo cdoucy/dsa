@@ -21,13 +21,14 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-SET(CMAKE_CXX_FLAGS "--coverage -fprofile-arcs -ftest-coverage ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_CXX_FLAGS "-g3 --coverage -fprofile-arcs -ftest-coverage ${CMAKE_CXX_FLAGS}")
 
 add_executable(
     ${TARGET}
     ${SOURCES}
     ${TEST_SOURCES}
         ../src/Str.cpp
+        Str_test.cpp
 )
 
 target_include_directories(
