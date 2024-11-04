@@ -27,6 +27,7 @@ add_executable(
     ${TARGET}
     ${SOURCES}
     ${TEST_SOURCES}
+        ../src/Str.cpp
 )
 
 target_include_directories(

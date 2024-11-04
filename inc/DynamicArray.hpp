@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstddef>
+#include <optional>
+#include <stdexcept>
 
 #include "buf_size.hpp"
 
@@ -62,17 +64,17 @@ namespace dsa
             return this->_capacity;
         };
 
-        int search(const T& target)
+        std::optional<std::size_t> search(const T& target)
         {
             // Time complexity = O(N), where N = Size
-            for (int i = 0; i < this->_size; i++)
+            for (std::size_t i = 0; i < this->_size; i++)
                 if (this->_array[i] == target)
-                    return i;
+                    return std::make_optional(i);
 
-            return -1;
+            return std::nullopt;
         };
 
-        void push_back(const T& value)
+        void pushBack(const T& value)
         {
             // T = O(1)
             // No reallocation needed.
@@ -105,7 +107,7 @@ namespace dsa
             this->_capacity = newCap;
         };
 
-        T& pop_back()
+        T& popBack()
         {
             if (this->_size == 0)
                 throw std::runtime_error("cannot pop empty array");
@@ -114,7 +116,7 @@ namespace dsa
             return this->_array[this->_size];
         };
 
-        void push_front(const T& value)
+        void pushFront(const T& value)
         {
             // T = O(N)
             if (this->_size < this->_capacity)
@@ -145,7 +147,7 @@ namespace dsa
             this->_array = newArray;
         }
 
-        T pop_front()
+        T popFront()
         {
             if (this->_size == 0)
                 throw std::runtime_error("cannot pop empty array");
@@ -213,6 +215,11 @@ namespace dsa
 
             return removed;
         };
+
+        const T *data() const
+        {
+            return this->_array;
+        }
 
     private:
         T* _array;

@@ -10,7 +10,7 @@ void assertEqualToVector(const dsa::DynamicArray<int> &arr, const std::vector<in
 {
     EXPECT_EQ(arr.size(), expected.size());
 
-    for (int i = 0; i < expected.size(); i++)
+    for (std::size_t i = 0; i < expected.size(); i++)
     {
         EXPECT_EQ(arr[i], expected[i]);
 
@@ -46,16 +46,17 @@ TEST(DynamicArray, Search)
 
     array[7] = 1;
 
-    EXPECT_EQ(-1, array.search(42));
-    EXPECT_EQ(7, array.search(1));
+    EXPECT_EQ(false, array.search(42).has_value());
+    EXPECT_EQ(true, array.search(1).has_value());
+    EXPECT_EQ(7, array.search(1).value());
 }
 
 TEST(DynamicArray, PushBack)
 {
     dsa::DynamicArray<int> arr;
 
-    for (int i = 0; i < 128; i++) {
-        arr.push_back(42);
+    for (std::size_t i = 0; i < 128; i++) {
+        arr.pushBack(42);
         EXPECT_EQ(42, arr[i]);
     }
 
@@ -67,14 +68,14 @@ TEST(DynamicArray, PopBack)
 {
     dsa::DynamicArray<int> arr;
 
-    EXPECT_THROW(arr.pop_back(), std::runtime_error);
+    EXPECT_THROW(arr.popBack(), std::runtime_error);
 
     for (int i = 0; i < 128; i++) {
-        arr.push_back(i);
+        arr.pushBack(i);
     }
 
     for (int i = 127; i >= 0; i--)
-        EXPECT_EQ(i, arr.pop_back());
+        EXPECT_EQ(i, arr.popBack());
 
     EXPECT_EQ(128, arr.cap());
     EXPECT_EQ(0, arr.size());
@@ -85,7 +86,7 @@ TEST(DynamicArray, PushFront)
     dsa::DynamicArray<int> arr;
 
     for (int i = 0; i < 128; i++) {
-        arr.push_front(i);
+        arr.pushFront(i);
         EXPECT_EQ(i, arr[0]);
     }
 
@@ -94,12 +95,12 @@ TEST(DynamicArray, PushFront)
 
     dsa::DynamicArray<int> arr2;
 
-    arr2.push_back(4);
-    arr2.push_back(5);
-    arr2.push_back(6);
-    arr2.push_front(3);
-    arr2.push_front(2);
-    arr2.push_front(1);
+    arr2.pushBack(4);
+    arr2.pushBack(5);
+    arr2.pushBack(6);
+    arr2.pushFront(3);
+    arr2.pushFront(2);
+    arr2.pushFront(1);
 
     EXPECT_EQ(6, arr2.size());
 
@@ -109,8 +110,8 @@ TEST(DynamicArray, PushFront)
 
     dsa::DynamicArray<int> arr3(2, 42);
 
-    arr3.push_front(1);
-    arr3.push_front(2);
+    arr3.pushFront(1);
+    arr3.pushFront(2);
     ASSERT_EQ(2, arr3[0]);
     ASSERT_EQ(1, arr3[1]);
     ASSERT_EQ(42, arr3[2]);
@@ -121,14 +122,14 @@ TEST(DynamicArray, PopFront)
 {
     dsa::DynamicArray<int> arr;
 
-    EXPECT_THROW(arr.pop_front(), std::runtime_error);
+    EXPECT_THROW(arr.popFront(), std::runtime_error);
 
     for (int i = 0; i < 128; i++) {
-        arr.push_front(i);
+        arr.pushFront(i);
     }
 
     for (int i = 127; i >= 0; i--)
-        EXPECT_EQ(i, arr.pop_front());
+        EXPECT_EQ(i, arr.popFront());
 
     EXPECT_EQ(128, arr.cap());
     EXPECT_EQ(0, arr.size());
@@ -140,7 +141,7 @@ TEST(DynamicArray, Reallocate)
 
     for (int i = 0; i < 128; i++)
     {
-        arr.push_back(1);
+        arr.pushBack(1);
         EXPECT_EQ(1, arr[arr.size() - 1]);
     }
 
@@ -152,7 +153,7 @@ TEST(DynamicArray, Reallocate)
 
     for (int i = 0; i < 128; i++)
     {
-        arr2.push_front(1);
+        arr2.pushFront(1);
         EXPECT_EQ(1, arr2[arr2.size() - 1]);
     }
 
@@ -166,8 +167,8 @@ TEST(DynamicArray, Insert)
     std::vector<int> expected{1, 2, 3, 4};
 
     // [1, 2, 3, 4]
-    for (int i = 0; i < arr.size(); i++)
-        arr[i] = i + 1;
+    for (std::size_t i = 0; i < arr.size(); i++)
+        arr[i] = static_cast<int>(i) + 1;
 
 
     // [1, 2, 42, 3, 4]
@@ -203,8 +204,8 @@ TEST(DynamicArray, remove)
     EXPECT_THROW(arr.remove(42), std::runtime_error);
 
     // [1, 2, 3, 4]
-    for (int i = 0; i < arr.size(); i++)
-        arr[i] = i + 1;
+    for (std::size_t i = 0; i < arr.size(); i++)
+        arr[i] = static_cast<int>(i) + 1;
 
     auto removed = arr.remove(2);
     expected.erase(expected.begin() + 2);

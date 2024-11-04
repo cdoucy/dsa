@@ -40,15 +40,15 @@ namespace dsa
             return this->_array[index];
         }
 
-        int search(const T &target)
+        std::optional<std::size_t> search(const T& target)
         {
             // Time complexity = O(N), where N = Size
-            for (int i = 0; i < Size; i++)
+            for (std::size_t i = 0; i < Size; i++)
                 if (this->_array[i] == target)
-                    return i;
+                    return std::make_optional(i);
 
-            return -1;
-        }
+            return std::nullopt;
+        };
 
     private:
         T _array[Size];

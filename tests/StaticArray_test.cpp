@@ -27,6 +27,7 @@ TEST(StaticArray, Search)
 
     array[7] = 1;
 
-    EXPECT_EQ(-1, array.search(42));
-    EXPECT_EQ(7, array.search(1));
+    EXPECT_EQ(false, array.search(42).has_value());
+    EXPECT_EQ(true, array.search(1).has_value());
+    EXPECT_EQ(7, array.search(1).value());
 }
