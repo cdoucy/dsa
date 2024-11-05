@@ -120,3 +120,37 @@ TEST(String, Equality)
     EXPECT_EQ(false, dsa::String("1234567890") == dsa::String("1234567891"));
     EXPECT_EQ(true, dsa::String("1234567890") != dsa::String("1234567891"));
 }
+
+TEST(String, Comparisons)
+{
+    EXPECT_EQ(true, dsa::String("a") < dsa::String("b"));
+    EXPECT_EQ(false, dsa::String("a") > dsa::String("b"));
+
+    EXPECT_EQ(true, dsa::String("abcdef") < dsa::String("acbdeg"));
+    EXPECT_EQ(false, dsa::String("abcdef") > dsa::String("acbdeg"));
+
+    EXPECT_EQ(false, dsa::String("123567") < dsa::String("123456789"));
+    EXPECT_EQ(true, dsa::String("123567") > dsa::String("123456789"));
+
+    EXPECT_EQ(true, dsa::String("abc") <= dsa::String("abc"));
+    EXPECT_EQ(false, dsa::String("abc") < dsa::String("abc"));
+
+    EXPECT_EQ(false, dsa::String("ab") >= dsa::String("abc"));
+    EXPECT_EQ(true, dsa::String("ab") <= dsa::String("abc"));
+
+    EXPECT_EQ(false, dsa::String("") > dsa::String("abc"));
+}
+
+TEST(String, Substring)
+{
+    EXPECT_STREQ("ll", dsa::String("hello").substring(2, 4).toCString());
+    EXPECT_STREQ("hello", dsa::String("hello").substring(0, 5).toCString());
+    EXPECT_STREQ("", dsa::String("").substring(0, 1).toCString());
+    EXPECT_STREQ("a", dsa::String("a").substring(0, 1).toCString());
+    EXPECT_STREQ("abc", dsa::String("0123abc456").substring(4, 7).toCString());
+
+    EXPECT_THROW(dsa::String("abc").substring(5, 9), std::exception);
+    EXPECT_THROW(dsa::String("").substring(1, 2), std::exception);
+    EXPECT_THROW(dsa::String("").substring(1, 2), std::exception);
+    EXPECT_THROW(dsa::String("abc").substring(0, 6), std::exception);
+}

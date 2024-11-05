@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <DynamicArray.hpp>
+#include <string.h>
 
 int main()
 {

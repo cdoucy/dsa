@@ -255,6 +255,27 @@ namespace dsa
             return *this;
         }
 
+        DynamicArray<T> slice(std::size_t start, std::size_t end) const
+        {
+            if (start == end)
+                throw std::runtime_error("start and end must be different");
+
+            if (start > this->_size)
+                throw std::runtime_error("start out of bound");
+
+            if (end > this->_size + 1)
+                throw std::runtime_error("end out of bound");
+
+            std::size_t size = end - start + 1;
+
+            DynamicArray<T> subarr(size);
+
+            for (std::size_t i = 0; i < size - 1; i++)
+                subarr[i] = this->_array[i + start];
+
+            return subarr;
+        }
+
     private:
         T* _array;
         std::size_t _size;

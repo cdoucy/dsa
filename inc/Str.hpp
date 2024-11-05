@@ -16,6 +16,7 @@ public:
     explicit String(const char *cString);
     String(const String &other);
     String(String &&other) noexcept ;
+    explicit String(DynamicArray<char> &&arr);
 
     [[nodiscard]] std::size_t size() const;
     [[nodiscard]] const char *toCString() const;
@@ -27,10 +28,10 @@ public:
     String &operator=(const String &other);
     bool operator==(const String &other) const;
     bool operator!=(const String &other) const;
-    bool operator<(const String &other);
-    bool operator>(const String &other);
-    bool operator<=(const String &other);
-    bool operator>=(const String &other);
+    bool operator<(const String &other) const;
+    bool operator>(const String &other) const;
+    bool operator<=(const String &other) const;
+    bool operator>=(const String &other) const;
     String substring(std::size_t start, std::size_t end) const;
     std::size_t find(const String &substr) const;
     String toLower() const;
@@ -40,6 +41,7 @@ public:
     DynamicArray<String> split(const String &pattern);
     bool isEmpty() const;
     void reset();
+    int cmp(const String &other) const;
 
 
 
