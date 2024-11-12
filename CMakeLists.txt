@@ -31,7 +31,6 @@ add_executable(
         ${TARGET}
         ${SOURCES}
         main.cpp
-        src/Str.cpp
 )
 
 target_include_directories(

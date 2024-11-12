@@ -96,37 +96,14 @@ namespace dsa
             return std::nullopt;
         };
 
+        void pushBack(T&& value)
+        {
+            this->pushBackImpl(std::move(value));
+        };
+
         void pushBack(const T& value)
         {
-            // T = O(1)
-            // No reallocation needed.
-            if (this->_size < this->_capacity)
-            {
-                this->_array[this->_size] = value;
-                ++this->_size;
-                return;
-            }
-
-            // We need to reallocate the array.
-            // N = size
-            // T = O(N)
-            // S = O(N)
-
-            auto newCap = this->_capacity * 2;
-            T* newArray = new T[newCap];
-
-            for (std::size_t i = 0; i < this->_size; i++)
-            {
-                newArray[i] = this->_array[i];
-            }
-
-            newArray[this->_size] = value;
-
-            delete []this->_array;
-            this->_array = newArray;
-
-            ++this->_size;
-            this->_capacity = newCap;
+            this->pushBackImpl(value);
         };
 
         T& popBack()
@@ -138,35 +115,14 @@ namespace dsa
             return this->_array[this->_size];
         };
 
+        void pushFront(T&& value)
+        {
+            this->pushFrontImpl(std::move(value));
+        }
+
         void pushFront(const T& value)
         {
-            // T = O(N)
-            if (this->_size < this->_capacity)
-            {
-                for (std::size_t i = this->_size; i > 0; --i)
-                {
-                    this->_array[i] = this->_array[i - 1];
-                }
-
-                this->_array[0] = value;
-                ++this->_size;
-                return;
-            }
-
-            // T = O(N)
-            // S = O(N)
-            auto newCap = this->_capacity * 2;
-            T* newArray = new T[newCap];
-
-            newArray[0] = value;
-            ++this->_size;
-
-            for (std::size_t i = 1; i < this->_size; i++)
-                newArray[i] = this->_array[i - 1];
-
-            delete []this->_array;
-            this->_capacity = newCap;
-            this->_array = newArray;
+            this->pushFrontImpl(value);
         }
 
         T popFront()
@@ -255,6 +211,23 @@ namespace dsa
             return *this;
         }
 
+        DynamicArray<T> &operator=(const DynamicArray &other) noexcept
+        {
+            if (this == &other)
+                return *this;
+
+            this->_size = other._size;
+            this->_capacity = other._capacity;
+
+            delete []this->_array;
+            this->_array = new T[this->_capacity];
+
+            for (std::size_t i = 0; i < this->_size; i++)
+                this->_array[i] = other._array[i];
+
+            return *this;
+        }
+
         DynamicArray<T> slice(std::size_t start, std::size_t end) const
         {
             if (start == end)
@@ -266,11 +239,11 @@ namespace dsa
             if (end > this->_size + 1)
                 throw std::runtime_error("end out of bound");
 
-            std::size_t size = end - start + 1;
+            std::size_t size = end - start;
 
             DynamicArray<T> subarr(size);
 
-            for (std::size_t i = 0; i < size - 1; i++)
+            for (std::size_t i = 0; i < size; i++)
                 subarr[i] = this->_array[i + start];
 
             return subarr;
@@ -280,5 +253,71 @@ namespace dsa
         T* _array;
         std::size_t _size;
         std::size_t _capacity;
+
+        template <typename U>
+        void pushFrontImpl(U&& value)
+        {
+            // T = O(N)
+            if (this->_size < this->_capacity)
+            {
+                for (std::size_t i = this->_size; i > 0; --i)
+                {
+                    this->_array[i] = std::move(this->_array[i - 1]);
+                }
+
+                this->_array[0] = std::forward<U>(value);
+                ++this->_size;
+                return;
+            }
+
+            // T = O(N)
+            // S = O(N)
+            auto newCap = this->_capacity * 2;
+            T* newArray = new T[newCap];
+
+            newArray[0] = std::forward<U>(value);;
+            ++this->_size;
+
+            for (std::size_t i = 1; i < this->_size; i++)
+                newArray[i] = std::move(this->_array[i - 1]);
+
+            delete []this->_array;
+            this->_capacity = newCap;
+            this->_array = newArray;
+        }
+
+        template <typename U>
+        void pushBackImpl(U&& value)
+        {
+            // T = O(1)
+            // No reallocation needed.
+            if (this->_size < this->_capacity)
+            {
+                this->_array[this->_size] = std::forward<U>(value);
+                ++this->_size;
+                return;
+            }
+
+            // We need to reallocate the array.
+            // N = size
+            // T = O(N)
+            // S = O(N)
+
+            auto newCap = this->_capacity * 2;
+            T* newArray = new T[newCap];
+
+            for (std::size_t i = 0; i < this->_size; i++)
+            {
+                newArray[i] = std::move(this->_array[i]);
+            }
+
+            newArray[this->_size] = std::forward<U>(value);
+
+            delete []this->_array;
+            this->_array = newArray;
+
+            ++this->_size;
+            this->_capacity = newCap;
+        }
     };
-};
+}

@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <string>
+#include <vector>
 #include "Str.hpp"
 
 TEST(String, Basic)
@@ -149,8 +151,161 @@ TEST(String, Substring)
     EXPECT_STREQ("a", dsa::String("a").substring(0, 1).toCString());
     EXPECT_STREQ("abc", dsa::String("0123abc456").substring(4, 7).toCString());
 
+    EXPECT_EQ(1, dsa::String("a").substring(0, 1).size());
+
     EXPECT_THROW(dsa::String("abc").substring(5, 9), std::exception);
     EXPECT_THROW(dsa::String("").substring(1, 2), std::exception);
     EXPECT_THROW(dsa::String("").substring(1, 2), std::exception);
     EXPECT_THROW(dsa::String("abc").substring(0, 6), std::exception);
+    EXPECT_THROW(dsa::String("abcefghklm").substring(5, 2), std::exception);
+}
+
+TEST(String, find)
+{
+    EXPECT_EQ(3, dsa::String("foobar").find(("bar")).value());
+    EXPECT_EQ(false, dsa::String("foobar").find(("hello")).has_value());
+    EXPECT_EQ(4, dsa::String("foobar").find(("a")).value());
+    EXPECT_EQ(3, dsa::String("barfoobarfoo").find(("foo")).value());
+    EXPECT_EQ(5, dsa::String("baarbbarrbaar").find(("bar")).value());
+
+    EXPECT_EQ(false, dsa::String("").find("bar").has_value());
+    EXPECT_EQ(0, dsa::String("").find(("")).value());
+    EXPECT_EQ(0, dsa::String("hello").find(("")).value());
+
+    EXPECT_EQ(false, dsa::String("hello").find(("hellohellohello")).has_value());
+    EXPECT_EQ(0, dsa::String("hello").find(("hello")).value());
+
+    EXPECT_EQ(false, dsa::String("foo").find(3, "foo").has_value());
+}
+
+TEST(String, LowerUpper)
+{
+    EXPECT_STREQ("hello12", dsa::String("HeLLo12").toLower().toCString());
+    EXPECT_STREQ("HELLO12", dsa::String("HeLLo12").toUpper().toCString());
+}
+
+TEST(String, InsertAndRemove)
+{
+    dsa::String s("hello");
+    s.insert(1, 'a');
+    EXPECT_STREQ("haello", s.toCString());
+
+    s.remove(1);
+    EXPECT_STREQ("hello", s.toCString());
+
+    s.insert(4, 'z');
+    EXPECT_STREQ("hellzo", s.toCString());
+
+    s.remove(4);
+    EXPECT_STREQ("hello", s.toCString());
+
+    s.insert(5, 'z');
+    EXPECT_STREQ("helloz", s.toCString());
+
+    s.remove(5);
+    EXPECT_STREQ("hello", s.toCString());
+
+    s.insert(0, 'x');
+    EXPECT_STREQ("xhello", s.toCString());
+
+    s.remove(0);
+    EXPECT_STREQ("hello", s.toCString());
+
+    EXPECT_THROW(s.insert(6, 'z'), std::runtime_error);
+    EXPECT_THROW(s.insert(999, 'z'), std::runtime_error);
+    EXPECT_THROW(dsa::String("").remove(0), std::runtime_error);
+}
+
+void assertEqualToVector(const dsa::DynamicArray<dsa::String> &actual, const std::vector<std::string> &expected)
+{
+    EXPECT_EQ(actual.size(), expected.size());
+
+    for (std::size_t i = 0; i < actual.size(); i++)
+        EXPECT_STREQ(actual[i].toCString(), expected[i].c_str());
+}
+
+TEST(String, Split)
+{
+    {
+        auto actual = dsa::String(";;;hello;world;;foo;bar;;;").split(";");
+        std::vector<std::string> expected{
+            "hello",
+            "world",
+            "foo",
+            "bar"
+        };
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("hello;world").split(";");
+        std::vector<std::string> expected = {"hello", "world"};
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("").split(";");
+        std::vector<std::string>  expected = {};
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("hello").split(";");
+        std::vector<std::string>  expected = {"hello"};
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("hello123world12f3oo123bar").split("123");
+        std::vector<std::string>  expected = {
+            "hello",
+            "world12f3oo",
+            "bar"
+        };
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("hello").split("");
+        std::vector<std::string>  expected = {
+            "hello",
+        };
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("hello").split(";");
+        std::vector<std::string>  expected = {
+            "hello",
+        };
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("hello").split("helloworld");
+        std::vector<std::string>  expected = {
+            "hello",
+        };
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("hello").split("hello");
+        std::vector<std::string>  expected = {};
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("helloworld").split("hello");
+        std::vector<std::string>  expected = {
+            "world",
+        };
+        assertEqualToVector(actual, expected);
+    }
+
+    {
+        auto actual = dsa::String("").split("");
+        std::vector<std::string>  expected = {};
+        assertEqualToVector(actual, expected);
+    }
 }
