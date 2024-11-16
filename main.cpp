@@ -1,24 +1,19 @@
-#include <iostream>
-#include "DynamicArray.hpp"
-#include "Str.hpp"
-#include <vector>
-#include <string>
-#include <DynamicArray.hpp>
-#include <string.h>
+#include "array.hpp"
+#include "str.hpp"
 
 int main()
 {
-    dsa::String s1("foo");
-    dsa::String s2(s1);
+    const dsa::str s1("foo");
+    dsa::str s2(s1);
 
 
-    s2 += dsa::String("bar");
+    s2 += dsa::str("bar");
 
-    dsa::String s3(std::move(s2));
+    dsa::str s3(std::move(s2));
 
-    s3 += dsa::String("foo");
+    s3 += dsa::str("foo");
 
-    s2 += dsa::String("hello");
+    s2 += dsa::str("hello");
 
 
     return 0;

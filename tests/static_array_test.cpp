@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "StaticArray.hpp"
+#include "static_array.hpp"
 
 TEST(StaticArray, Indexing)
 {
-    dsa::StaticArray<int, 16> array;
+    dsa::static_array<int, 16> array;
 
     for (std::size_t i = 0; i < array.size(); i++)
         EXPECT_EQ(0, array[i]);
@@ -11,7 +11,7 @@ TEST(StaticArray, Indexing)
     array[6] = 42;
     EXPECT_EQ(42, array[6]);
 
-    const dsa::StaticArray<float, 6> constArray(100.0);
+    const dsa::static_array<float, 6> constArray(100.0);
     for (std::size_t i = 0; i < constArray.size(); i++)
         EXPECT_EQ(100.0, constArray[i]);
 
@@ -23,7 +23,7 @@ TEST(StaticArray, Indexing)
 
 TEST(StaticArray, Search)
 {
-    dsa::StaticArray<int, 16> array(0);
+    dsa::static_array<int, 16> array(0);
 
     array[7] = 1;
 

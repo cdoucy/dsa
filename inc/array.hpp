@@ -11,21 +11,21 @@
 namespace dsa
 {
     template <class T>
-    class DynamicArray
+    class array
     {
     public:
-        DynamicArray()
+        array()
             : _array(new T[DEFAULT_BUF_SIZE]),
               _size(0),
               _capacity(DEFAULT_BUF_SIZE)
         {
         };
 
-        explicit DynamicArray(std::size_t size) : DynamicArray(size, T{})
+        explicit array(std::size_t size) : array(size, T{})
         {
         };
 
-        DynamicArray(const std::size_t size, const T& value)
+        array(const std::size_t size, const T& value)
             : _array(new T[MAX(size, DEFAULT_BUF_SIZE)]),
               _size(size),
               _capacity(MAX(size, DEFAULT_BUF_SIZE))
@@ -34,14 +34,14 @@ namespace dsa
                 this->_array[i] = value;
         };
 
-        DynamicArray(const DynamicArray<T> &other)
-            :   DynamicArray(other._size)
+        array(const array<T> &other)
+            :   array(other._size)
         {
             for (std::size_t i = 0; i < other._size; i++)
                 this->_array[i] = other._array[i];
         }
 
-        DynamicArray(DynamicArray<T> &&other)
+        array(array<T> &&other)
             :   _array(other._array),
                 _size(other._size),
                 _capacity(other._capacity)
@@ -49,7 +49,7 @@ namespace dsa
             other.reset();
         }
 
-        ~DynamicArray()
+        ~array()
         {
             delete[] this->_array;
         };
@@ -96,17 +96,17 @@ namespace dsa
             return std::nullopt;
         };
 
-        void pushBack(T&& value)
+        void push_back(T&& value)
         {
-            this->pushBackImpl(std::move(value));
+            this->push_back_impl(std::move(value));
         };
 
-        void pushBack(const T& value)
+        void push_back(const T& value)
         {
-            this->pushBackImpl(value);
+            this->push_back_impl(value);
         };
 
-        T& popBack()
+        T& pop_back()
         {
             if (this->_size == 0)
                 throw std::runtime_error("cannot pop empty array");
@@ -115,17 +115,17 @@ namespace dsa
             return this->_array[this->_size];
         };
 
-        void pushFront(T&& value)
+        void push_front(T&& value)
         {
-            this->pushFrontImpl(std::move(value));
+            this->push_front_impl(std::move(value));
         }
 
-        void pushFront(const T& value)
+        void push_front(const T& value)
         {
-            this->pushFrontImpl(value);
+            this->push_front_impl(value);
         }
 
-        T popFront()
+        T pop_front()
         {
             if (this->_size == 0)
                 throw std::runtime_error("cannot pop empty array");
@@ -199,7 +199,7 @@ namespace dsa
             return this->_array;
         }
 
-        DynamicArray<T> &operator=(DynamicArray &&other) noexcept
+        array<T> &operator=(array &&other) noexcept
         {
             delete []this->_array;
 
@@ -211,7 +211,7 @@ namespace dsa
             return *this;
         }
 
-        DynamicArray<T> &operator=(const DynamicArray &other) noexcept
+        array<T> &operator=(const array &other) noexcept
         {
             if (this == &other)
                 return *this;
@@ -228,7 +228,7 @@ namespace dsa
             return *this;
         }
 
-        DynamicArray<T> slice(std::size_t start, std::size_t end) const
+        array<T> slice(std::size_t start, std::size_t end) const
         {
             if (start == end)
                 throw std::runtime_error("start and end must be different");
@@ -241,7 +241,7 @@ namespace dsa
 
             std::size_t size = end - start;
 
-            DynamicArray<T> subarr(size);
+            array<T> subarr(size);
 
             for (std::size_t i = 0; i < size; i++)
                 subarr[i] = this->_array[i + start];
@@ -255,7 +255,7 @@ namespace dsa
         std::size_t _capacity;
 
         template <typename U>
-        void pushFrontImpl(U&& value)
+        void push_front_impl(U&& value)
         {
             // T = O(N)
             if (this->_size < this->_capacity)
@@ -287,7 +287,7 @@ namespace dsa
         }
 
         template <typename U>
-        void pushBackImpl(U&& value)
+        void push_back_impl(U&& value)
         {
             // T = O(1)
             // No reallocation needed.

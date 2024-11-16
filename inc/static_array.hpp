@@ -6,13 +6,13 @@
 namespace dsa
 {
     template <class T, std::size_t Size>
-    class StaticArray
+    class static_array
     {
     public:
-        StaticArray() : StaticArray(T{}) {};
+        static_array() : static_array(T{}) {};
 
-        ~StaticArray() = default;
-        explicit StaticArray(const T &value)
+        ~static_array() = default;
+        explicit static_array(const T &value)
         {
             // Time complexity = O(N), where N = Size
             for (std::size_t i = 0; i < Size; i++)

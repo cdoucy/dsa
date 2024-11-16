@@ -2,7 +2,7 @@
 // Created by cdoucy on 11/4/24.
 //
 
-#include "Str.hpp"
+#include "str.hpp"
 
 namespace dsa
 {
@@ -17,10 +17,10 @@ namespace dsa
         return len;
     }
 
-    static DynamicArray<char> arrayFromCString(const char* s)
+    static array<char> array_from_c_str(const char* s)
     {
         const std::size_t len = strlen(s);
-        DynamicArray<char> arr(len + 1);
+        array<char> arr(len + 1);
 
         for (std::size_t i = 0; i < len; i++)
             arr[i] = s[i];
@@ -30,61 +30,61 @@ namespace dsa
         return arr;
     }
 
-    String::String()
+    str::str()
         :   _str(1, '\0'),
             _size(0)
     {
     }
 
-    String::String(const char* cString)
-        : _str(arrayFromCString(cString)),
+    str::str(const char* cString)
+        : _str(array_from_c_str(cString)),
           _size(strlen(cString))
     {
     }
 
-    String::String(const String& other)
+    str::str(const str& other)
         : _str(other._str),
           _size(other._size)
     {
     }
 
-    String::String(String&& other) noexcept
+    str::str(str&& other) noexcept
     :   _str(std::move(other._str)),
         _size(other._size)
     {
         other.reset();
     }
 
-    String::String(DynamicArray<char>&& arr)
+    str::str(array<char>&& arr)
         : _str(std::move(arr)),
             _size(this->_str.size())
     {
-        this->_str.pushBack('\0');
+        this->_str.push_back('\0');
     }
 
-    String::String(std::size_t capacity)
+    str::str(std::size_t capacity)
         :   _str(capacity, '\0'),
             _size(0)
 
     {
     }
 
-    std::size_t String::size() const
+    std::size_t str::size() const
     {
         return this->_size;
     }
 
-    const char* String::toCString() const
+    const char* str::to_c_str() const
     {
         return this->_str.data();
     }
 
-    char String::operator[](const std::size_t index) const
+    char str::operator[](const std::size_t index) const
     {
         return this->at(index);
     }
 
-    char String::at(const std::size_t index) const
+    char str::at(const std::size_t index) const
     {
         if (index >= this->_size)
             throw std::runtime_error("string index out of range");
@@ -92,20 +92,20 @@ namespace dsa
     }
 
 
-    String String::operator+(const String& other) const
+    str str::operator+(const str& other) const
     {
-        String res(*this);
+        str res(*this);
         res.concat(other);
         return res;
     }
 
-    String& String::operator+=(const String& other)
+    str& str::operator+=(const str& other)
     {
         this->concat(other);
         return *this;
     }
 
-    String& String::operator=(String&& other) noexcept
+    str& str::operator=(str&& other) noexcept
     {
         this->_str = std::move(other._str);
         this->_size = other._size;
@@ -113,7 +113,7 @@ namespace dsa
         return *this;
     }
 
-    String& String::operator=(const String& other)
+    str& str::operator=(const str& other)
     {
         if (this == &other)
             return *this;
@@ -124,37 +124,37 @@ namespace dsa
         return *this;
     }
 
-    bool String::operator==(const String& other) const
+    bool str::operator==(const str& other) const
     {
         return this->cmp(other) == 0;
     }
 
-    bool String::operator!=(const String& other) const
+    bool str::operator!=(const str& other) const
     {
         return this->cmp(other) != 0;
     }
 
-    bool String::operator<(const String& other) const
+    bool str::operator<(const str& other) const
     {
         return this->cmp(other) < 0;
     }
 
-    bool String::operator>(const String& other) const
+    bool str::operator>(const str& other) const
     {
         return this->cmp(other) > 0;
     }
 
-    bool String::operator<=(const String& other) const
+    bool str::operator<=(const str& other) const
     {
         return this->cmp(other) <= 0;
     }
 
-    bool String::operator>=(const String& other) const
+    bool str::operator>=(const str& other) const
     {
         return this->cmp(other) >= 0;
     }
 
-    String String::substring(std::size_t start, std::size_t end) const
+    str str::substring(std::size_t start, std::size_t end) const
     {
         if (start == end)
             throw std::runtime_error("start and end must be different");
@@ -168,15 +168,15 @@ namespace dsa
         if (end > this->_size + 1)
             throw std::runtime_error("end out of bound");
 
-        return String(std::move(this->_str.slice(start, end)));
+        return str(std::move(this->_str.slice(start, end)));
     }
 
-    std::optional<std::size_t> String::find(const String& substr) const
+    std::optional<std::size_t> str::find(const str& substr) const
     {
         return this->find(0, substr);
     }
 
-    std::optional<std::size_t> String::find(std::size_t start, const String& substr) const
+    std::optional<std::size_t> str::find(std::size_t start, const str& substr) const
     {
         if (substr.size() == 0)
             return std::make_optional(0);
@@ -205,9 +205,9 @@ namespace dsa
         return std::nullopt;
     }
 
-    String String::toLower() const
+    str str::to_lower() const
     {
-        dsa::String lowered(this->_size);
+        dsa::str lowered(this->_size);
 
         for (std::size_t i = 0; i < this->size(); i++)
         {
@@ -222,9 +222,9 @@ namespace dsa
         return lowered;
     }
 
-    String String::toUpper() const
+    str str::to_upper() const
     {
-        dsa::String uppered(this->_size);
+        dsa::str uppered(this->_size);
 
         for (std::size_t i = 0; i < this->size(); i++)
         {
@@ -239,13 +239,13 @@ namespace dsa
         return uppered;
     }
 
-    void String::append(const char c)
+    void str::append(const char c)
     {
         this->_str.insert(this->_size, c);
         this->_size += 1;
     }
 
-    void String::insert(std::size_t idx, char c)
+    void str::insert(std::size_t idx, char c)
     {
         if (idx > this->_size)
             throw std::runtime_error("index out of bound");
@@ -254,7 +254,7 @@ namespace dsa
         this->_size++;
     }
 
-    void String::remove(size_t idx)
+    void str::remove(size_t idx)
     {
         if (idx >= this->_size)
             throw std::runtime_error("index out of bound");
@@ -263,14 +263,14 @@ namespace dsa
         this->_size--;
     }
 
-    DynamicArray<String> String::split(const String& pattern) const
+    array<str> str::split(const str& pattern) const
     {
-        if (this->isEmpty())
+        if (this->is_empty())
             return {};
-        if (pattern.isEmpty())
+        if (pattern.is_empty())
             return {1, *this};
 
-        DynamicArray<String> splitted;
+        array<str> splitted;
         std::size_t start = 0;
         std::size_t end = 0;
 
@@ -286,7 +286,7 @@ namespace dsa
             }
 
             if (end > start)
-                splitted.pushBack(this->substring(start, end));
+                splitted.push_back(this->substring(start, end));
 
             start = end + pattern.size();
         }
@@ -294,7 +294,7 @@ namespace dsa
         return splitted;
     }
 
-    int String::cmp(const String &other) const
+    int str::cmp(const str &other) const
     {
         std::size_t i = 0;
         std::size_t j = 0;
@@ -315,29 +315,29 @@ namespace dsa
 
 
 
-    bool String::isEmpty() const
+    bool str::is_empty() const
     {
         return this->_size == 0;
     }
 
-    void String::reset()
+    void str::reset()
     {
-        this->_str = DynamicArray<char>(1, '\0');
+        this->_str = array<char>(1, '\0');
         this->_size = 0;
     }
 
-    void String::concat(const String& s)
+    void str::concat(const str& s)
     {
         if (this->_str.size() != 0)
             // Remove trailing '\0'
-            this->_str.popBack();
+            this->_str.pop_back();
 
         for (std::size_t i = 0; i < s.size(); i++)
         {
-            this->_str.pushBack(s[i]);
+            this->_str.push_back(s[i]);
         }
 
-        this->_str.pushBack('\0');
+        this->_str.push_back('\0');
 
         this->_size += s.size();
     }

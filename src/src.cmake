@@ -1,4 +1,4 @@
 SET(
         SOURCES
-        ${PROJECT_ROOT}/src/Str.cpp
+        ${PROJECT_ROOT}/src/str.cpp
 )
