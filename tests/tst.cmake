@@ -1,6 +1,7 @@
 set(
     TEST_SOURCES
 
-    ${PROJECT_ROOT}/tests/DynamicArray_test.cpp
-    ${PROJECT_ROOT}/tests/StaticArray_test.cpp
+    ${PROJECT_ROOT}/tests/array_test.cpp
+    ${PROJECT_ROOT}/tests/static_array_test.cpp
+    ${PROJECT_ROOT}/tests/str_test.cpp
 )

@@ -4,13 +4,13 @@
 
 // Override default buf size to ensure reallocation is covered by tests
 #define DEFAULT_BUF_SIZE 4
-#include "DynamicArray.hpp"
+#include "array.hpp"
 
-void assertEqualToVector(const dsa::DynamicArray<int> &arr, const std::vector<int> &expected, bool debug=false)
+void assert_equal_to_vector(const dsa::array<int> &arr, const std::vector<int> &expected, bool debug=false)
 {
     EXPECT_EQ(arr.size(), expected.size());
 
-    for (int i = 0; i < expected.size(); i++)
+    for (std::size_t i = 0; i < expected.size(); i++)
     {
         EXPECT_EQ(arr[i], expected[i]);
 
@@ -22,7 +22,7 @@ void assertEqualToVector(const dsa::DynamicArray<int> &arr, const std::vector<in
 
 TEST(DynamicArray, Indexing)
 {
-    dsa::DynamicArray<int> array(16);
+    dsa::array<int> array(16);
 
     for (std::size_t i = 0; i < array.size(); i++)
         EXPECT_EQ(0, array[i]);
@@ -30,7 +30,7 @@ TEST(DynamicArray, Indexing)
     array[6] = 42;
     EXPECT_EQ(42, array[6]);
 
-    const dsa::DynamicArray<float> constArray(6, 100.0);
+    const dsa::array<float> constArray(6, 100.0);
     for (std::size_t i = 0; i < constArray.size(); i++)
         EXPECT_EQ(100.0, constArray[i]);
 
@@ -42,19 +42,20 @@ TEST(DynamicArray, Indexing)
 
 TEST(DynamicArray, Search)
 {
-    dsa::DynamicArray<int> array(16, 0);
+    dsa::array<int> array(16, 0);
 
     array[7] = 1;
 
-    EXPECT_EQ(-1, array.search(42));
-    EXPECT_EQ(7, array.search(1));
+    EXPECT_EQ(false, array.search(42).has_value());
+    EXPECT_EQ(true, array.search(1).has_value());
+    EXPECT_EQ(7, array.search(1).value());
 }
 
 TEST(DynamicArray, PushBack)
 {
-    dsa::DynamicArray<int> arr;
+    dsa::array<int> arr;
 
-    for (int i = 0; i < 128; i++) {
+    for (std::size_t i = 0; i < 128; i++) {
         arr.push_back(42);
         EXPECT_EQ(42, arr[i]);
     }
@@ -65,7 +66,7 @@ TEST(DynamicArray, PushBack)
 
 TEST(DynamicArray, PopBack)
 {
-    dsa::DynamicArray<int> arr;
+    dsa::array<int> arr;
 
     EXPECT_THROW(arr.pop_back(), std::runtime_error);
 
@@ -82,7 +83,7 @@ TEST(DynamicArray, PopBack)
 
 TEST(DynamicArray, PushFront)
 {
-    dsa::DynamicArray<int> arr;
+    dsa::array<int> arr;
 
     for (int i = 0; i < 128; i++) {
         arr.push_front(i);
@@ -92,7 +93,7 @@ TEST(DynamicArray, PushFront)
     EXPECT_EQ(128, arr.cap());
     EXPECT_EQ(128, arr.size());
 
-    dsa::DynamicArray<int> arr2;
+    dsa::array<int> arr2;
 
     arr2.push_back(4);
     arr2.push_back(5);
@@ -107,7 +108,7 @@ TEST(DynamicArray, PushFront)
         // 1, 2, 3, 4, 5, 6
         EXPECT_EQ(i + 1, arr2[i]);
 
-    dsa::DynamicArray<int> arr3(2, 42);
+    dsa::array<int> arr3(2, 42);
 
     arr3.push_front(1);
     arr3.push_front(2);
@@ -119,7 +120,7 @@ TEST(DynamicArray, PushFront)
 
 TEST(DynamicArray, PopFront)
 {
-    dsa::DynamicArray<int> arr;
+    dsa::array<int> arr;
 
     EXPECT_THROW(arr.pop_front(), std::runtime_error);
 
@@ -136,7 +137,7 @@ TEST(DynamicArray, PopFront)
 
 TEST(DynamicArray, Reallocate)
 {
-    dsa::DynamicArray<int> arr(0);
+    dsa::array<int> arr(0);
 
     for (int i = 0; i < 128; i++)
     {
@@ -148,7 +149,7 @@ TEST(DynamicArray, Reallocate)
     EXPECT_EQ(128, arr.cap());
 
 
-    dsa::DynamicArray<int> arr2(0);
+    dsa::array<int> arr2(0);
 
     for (int i = 0; i < 128; i++)
     {
@@ -162,33 +163,33 @@ TEST(DynamicArray, Reallocate)
 
 TEST(DynamicArray, Insert)
 {
-    dsa::DynamicArray<int> arr(4);
+    dsa::array<int> arr(4);
     std::vector<int> expected{1, 2, 3, 4};
 
     // [1, 2, 3, 4]
-    for (int i = 0; i < arr.size(); i++)
-        arr[i] = i + 1;
+    for (std::size_t i = 0; i < arr.size(); i++)
+        arr[i] = static_cast<int>(i) + 1;
 
 
     // [1, 2, 42, 3, 4]
     arr.insert(2, 42);
     expected.insert(expected.begin() + 2, 42);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
 
     // [100, 1, 2, 42, 3, 4]
     arr.insert(0, 100);
     expected.insert(expected.begin(), 100);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
 
     // [100, 1, 2, 42, 3, 4, 200]
     arr.insert(6, 200);
     expected.insert(expected.begin() + 6, 200);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
 
     // [100, 1, 2, 42, 3, 4, 300, 200]
     arr.insert(6, 200);
     expected.insert(expected.begin() + 6, 200);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
 
     EXPECT_THROW(arr.insert(9, 444), std::runtime_error);
     EXPECT_THROW(arr.insert(100, 444), std::runtime_error);
@@ -196,38 +197,38 @@ TEST(DynamicArray, Insert)
 
 TEST(DynamicArray, remove)
 {
-    dsa::DynamicArray<int> arr(4);
+    dsa::array<int> arr(4);
     std::vector<int> expected{1, 2, 3, 4};
 
     EXPECT_THROW(arr.remove(4), std::runtime_error);
     EXPECT_THROW(arr.remove(42), std::runtime_error);
 
     // [1, 2, 3, 4]
-    for (int i = 0; i < arr.size(); i++)
-        arr[i] = i + 1;
+    for (std::size_t i = 0; i < arr.size(); i++)
+        arr[i] = static_cast<int>(i) + 1;
 
     auto removed = arr.remove(2);
     expected.erase(expected.begin() + 2);
     EXPECT_EQ(removed, 3);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
     // [1, 2, 4]
 
     removed = arr.remove(0);
     expected.erase(expected.begin());
     EXPECT_EQ(removed, 1);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
     // [2, 4]
 
     removed = arr.remove(1);
     expected.erase(expected.begin() + 1);
     EXPECT_EQ(removed, 4);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
     // [2]
 
     removed = arr.remove(0);
     expected.erase(expected.begin());
     EXPECT_EQ(removed, 2);
-    assertEqualToVector(arr, expected);
+    assert_equal_to_vector(arr, expected);
     // []
 
     EXPECT_THROW(arr.remove(0), std::runtime_error);

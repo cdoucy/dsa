@@ -1,42 +1,19 @@
-#include <iostream>
-#include "DynamicArray.hpp"
-#include <vector>
+#include "array.hpp"
+#include "str.hpp"
 
 int main()
 {
-    dsa::DynamicArray<int> arr(4);
-    std::vector<int> expected{1, 2, 3, 4};
-
-    // [1, 2, 3, 4]
-    for (int i = 0; i < arr.size(); i++)
-        arr[i] = i + 1;
-
-    std::cout << arr.cap() << std::endl;
+    const dsa::str s1("foo");
+    dsa::str s2(s1);
 
 
-    // [1, 2, 42, 3, 4]
-    arr.insert(2, 42);
-    expected.insert(expected.begin() + 2, 42);
+    s2 += dsa::str("bar");
 
-    std::cout << arr.cap() << std::endl;
+    dsa::str s3(std::move(s2));
 
-    // [100, 1, 2, 42, 3, 4]
-    arr.insert(0, 100);
-    expected.insert(expected.begin(), 100);
+    s3 += dsa::str("foo");
 
-    std::cout << arr.cap() << std::endl;
-
-    // [100, 1, 2, 42, 3, 4, 200]
-    arr.insert(6, 200);
-    expected.insert(expected.begin() + 6, 200);
-
-    std::cout << arr.cap() << std::endl;
-
-    // [100, 1, 2, 42, 3, 4, 300, 200]
-    arr.insert(6, 200);
-    expected.insert(expected.begin() + 6, 200);
-
-    std::cout << arr.cap() << std::endl;
+    s2 += dsa::str("hello");
 
 
     return 0;

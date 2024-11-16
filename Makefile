@@ -17,7 +17,7 @@ coverage:
 
 clean-build:
 	rm -rf cmake-build-debug
-	rm -f ./hudson-dsa
+	rm -f ./dsa
 
 clean-test:
 	rm -rf cmake-build-test
