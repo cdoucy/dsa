@@ -31,8 +31,8 @@ namespace dsa
     }
 
     str::str()
-        :   _str(1, '\0'),
-            _size(0)
+        : _str(1, '\0'),
+          _size(0)
     {
     }
 
@@ -49,22 +49,22 @@ namespace dsa
     }
 
     str::str(str&& other) noexcept
-    :   _str(std::move(other._str)),
-        _size(other._size)
+        : _str(std::move(other._str)),
+          _size(other._size)
     {
         other.reset();
     }
 
     str::str(array<char>&& arr)
         : _str(std::move(arr)),
-            _size(this->_str.size())
+          _size(this->_str.size())
     {
         this->_str.push_back('\0');
     }
 
     str::str(std::size_t capacity)
-        :   _str(capacity, '\0'),
-            _size(0)
+        : _str(capacity, '\0'),
+          _size(0)
 
     {
     }
@@ -117,9 +117,8 @@ namespace dsa
     {
         if (this == &other)
             return *this;
-
         this->_str = other._str;
-        this->_size = other>_size;
+        this->_size = other > _size;
 
         return *this;
     }
@@ -199,7 +198,6 @@ namespace dsa
 
             if (j == substr.size())
                 return std::make_optional(pos);
-
         }
 
         return std::nullopt;
@@ -280,7 +278,8 @@ namespace dsa
             if (optEnd.has_value())
             {
                 end = optEnd.value();
-            } else
+            }
+            else
             {
                 end = this->_size;
             }
@@ -294,7 +293,7 @@ namespace dsa
         return splitted;
     }
 
-    int str::cmp(const str &other) const
+    int str::cmp(const str& other) const
     {
         std::size_t i = 0;
         std::size_t j = 0;
@@ -312,7 +311,6 @@ namespace dsa
 
         return static_cast<int>(this->_size) - static_cast<int>(other._size);
     }
-
 
 
     bool str::is_empty() const

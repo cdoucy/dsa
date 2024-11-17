@@ -233,3 +233,41 @@ TEST(DynamicArray, remove)
 
     EXPECT_THROW(arr.remove(0), std::runtime_error);
 }
+
+TEST(array, reset)
+{
+    dsa::array<int> arr(4);
+
+    arr.reset();
+
+    EXPECT_EQ(0, arr.cap());
+    EXPECT_EQ(0, arr.size());
+
+    arr.push_back(1);
+
+    EXPECT_EQ(1, arr.size());
+    EXPECT_EQ(DEFAULT_BUF_SIZE, arr.cap());
+    EXPECT_EQ(1, arr[0]);
+
+    arr.reset();
+
+    EXPECT_EQ(0, arr.cap());
+    EXPECT_EQ(0, arr.size());
+
+    arr.push_front(1);
+
+    EXPECT_EQ(1, arr.size());
+    EXPECT_EQ(DEFAULT_BUF_SIZE, arr.cap());
+    EXPECT_EQ(1, arr[0]);
+
+    arr.reset();
+
+    EXPECT_EQ(0, arr.cap());
+    EXPECT_EQ(0, arr.size());
+
+    arr.insert(0, 1);
+
+    EXPECT_EQ(1, arr.size());
+    EXPECT_EQ(DEFAULT_BUF_SIZE, arr.cap());
+    EXPECT_EQ(1, arr[0]);
+}

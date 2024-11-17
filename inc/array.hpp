@@ -34,18 +34,19 @@ namespace dsa
                 this->_array[i] = value;
         };
 
-        array(const array<T> &other)
-            :   array(other._size)
+        array(const array<T>& other)
+            : array(other._size)
         {
             for (std::size_t i = 0; i < other._size; i++)
                 this->_array[i] = other._array[i];
         }
 
-        array(array<T> &&other)
-            :   _array(other._array),
-                _size(other._size),
-                _capacity(other._capacity)
+        array(array<T>&& other)
+            : _array(other._array),
+              _size(other._size),
+              _capacity(other._capacity)
         {
+            other._array = NULL;
             other.reset();
         }
 
@@ -56,9 +57,10 @@ namespace dsa
 
         void reset()
         {
-            this->_array = new T[DEFAULT_BUF_SIZE];
+            delete[] this->_array;
+            this->_array = NULL;
             this->_size = 0;
-            this->_capacity = DEFAULT_BUF_SIZE;
+            this->_capacity = 0;
         }
 
         T& operator[](std::size_t index)
@@ -143,39 +145,12 @@ namespace dsa
 
         void insert(std::size_t index, const T& value)
         {
-            if (index > this->_size)
-                throw std::runtime_error("insert index cannot be greater than array size");
+            return this->insert_impl(index, value);
+        };
 
-            if (this->_size < this->_capacity)
-            {
-                // T = O(Size - Index)
-                for (std::size_t i = this->_size; i > index; --i)
-                    this->_array[i] = this->_array[i - 1];
-                this->_array[index] = value;
-                ++this->_size;
-                return;
-            }
-
-            // N = Size + 1
-            // T = O(N)
-            // S = O(N)
-
-            auto newCap = this->_capacity *= 2;
-            auto newArr = new T[newCap];
-
-            for (std::size_t i = 0; i < index; i++)
-                newArr[i] = this->_array[i];
-
-            newArr[index] = value;
-
-            for (std::size_t i = index; i < this->_size; i++)
-                newArr[i + 1] = this->_array[i];
-
-            delete []this->_array;
-
-            this->_capacity = newCap;
-            this->_array = newArr;
-            ++this->_size;
+        void insert(std::size_t index, T&& value)
+        {
+            return this->insert_impl(index, std::move(value));
         };
 
         T remove(std::size_t index)
@@ -194,12 +169,12 @@ namespace dsa
             return removed;
         };
 
-        const T *data() const
+        const T* data() const
         {
             return this->_array;
         }
 
-        array<T> &operator=(array &&other) noexcept
+        array<T>& operator=(array&& other) noexcept
         {
             delete []this->_array;
 
@@ -207,11 +182,13 @@ namespace dsa
             this->_array = other._array;
             this->_capacity = other._capacity;
 
+            other._array = NULL;
             other.reset();
+
             return *this;
         }
 
-        array<T> &operator=(const array &other) noexcept
+        array<T>& operator=(const array& other) noexcept
         {
             if (this == &other)
                 return *this;
@@ -254,70 +231,59 @@ namespace dsa
         std::size_t _size;
         std::size_t _capacity;
 
-        template <typename U>
+        template <class U>
         void push_front_impl(U&& value)
         {
-            // T = O(N)
-            if (this->_size < this->_capacity)
-            {
-                for (std::size_t i = this->_size; i > 0; --i)
-                {
-                    this->_array[i] = std::move(this->_array[i - 1]);
-                }
-
-                this->_array[0] = std::forward<U>(value);
-                ++this->_size;
-                return;
-            }
-
-            // T = O(N)
-            // S = O(N)
-            auto newCap = this->_capacity * 2;
-            T* newArray = new T[newCap];
-
-            newArray[0] = std::forward<U>(value);;
-            ++this->_size;
-
-            for (std::size_t i = 1; i < this->_size; i++)
-                newArray[i] = std::move(this->_array[i - 1]);
-
-            delete []this->_array;
-            this->_capacity = newCap;
-            this->_array = newArray;
+            return this->insert_impl(0, std::forward<U>(value));
         }
 
-        template <typename U>
+        template <class U>
         void push_back_impl(U&& value)
         {
-            // T = O(1)
-            // No reallocation needed.
+            return this->insert_impl(this->_size, std::forward<U>(value));
+        }
+
+        template <class U>
+        void insert_impl(std::size_t index, U&& value)
+        {
+            if (index > this->_size)
+                throw std::runtime_error("insert index cannot be greater than array size");
+
             if (this->_size < this->_capacity)
             {
-                this->_array[this->_size] = std::forward<U>(value);
+                // T = O(Size - Index)
+                for (std::size_t i = this->_size; i > index; --i)
+                    this->_array[i] = std::move(this->_array[i - 1]);
+                this->_array[index] = std::forward<U>(value);
                 ++this->_size;
                 return;
             }
 
-            // We need to reallocate the array.
-            // N = size
+            // N = Size + 1
             // T = O(N)
             // S = O(N)
 
-            auto newCap = this->_capacity * 2;
-            T* newArray = new T[newCap];
+            auto new_cap = this->calculate_new_cap();
+            auto new_arr = new T[new_cap];
 
-            for (std::size_t i = 0; i < this->_size; i++)
-            {
-                newArray[i] = std::move(this->_array[i]);
-            }
+            for (std::size_t i = 0; i < index; i++)
+                new_arr[i] = std::move(this->_array[i]);
 
-            newArray[this->_size] = std::forward<U>(value);
+            new_arr[index] = std::forward<U>(value);
+
+            for (std::size_t i = index; i < this->_size; i++)
+                new_arr[i + 1] = std::move(this->_array[i]);
 
             delete []this->_array;
-            this->_array = newArray;
 
+            this->_capacity = new_cap;
+            this->_array = new_arr;
             ++this->_size;
-            this->_capacity = newCap;
+        }
+
+        [[nodiscard]] std::size_t calculate_new_cap() const
+        {
+            return MAX(this->_capacity * 2, DEFAULT_BUF_SIZE);
         }
     };
 }
