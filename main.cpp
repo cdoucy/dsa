@@ -1,20 +1,16 @@
 #include "array.hpp"
 #include "str.hpp"
+#include "list.hpp"
 
 int main()
 {
-    const dsa::str s1("foo");
-    dsa::str s2(s1);
+    dsa::str s("yoo");
+    dsa::array<int> arr;
+    dsa::list<int> l;
 
-
-    s2 += dsa::str("bar");
-
-    dsa::str s3(std::move(s2));
-
-    s3 += dsa::str("foo");
-
-    s2 += dsa::str("hello");
-
+    s += "wasup";
+    arr.push_back(42);
+    l.push_front(42);
 
     return 0;
 }

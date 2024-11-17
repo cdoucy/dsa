@@ -13,7 +13,7 @@ run-test: test
 	./cmake-build-test/tests/dsa-test
 
 coverage:
-	gcovr -e "tst/" -e "cmake-build-test/"
+	gcovr -e "tests/" -e "cmake-build-test/"
 
 clean-build:
 	rm -rf cmake-build-debug
