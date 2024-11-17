@@ -6,8 +6,8 @@
 #define LIST_HPP
 
 #include <cstddef>
-#include <optional>
 #include <stdexcept>
+#include <functional>
 #include "str.hpp"
 
 namespace dsa
@@ -15,16 +15,65 @@ namespace dsa
     template <class T>
     class list
     {
-
     private:
         struct node;
+
     public:
         class itr;
 
     public:
+        using find_func = std::function<bool (const T&)>;
 
-        list() : _size(0), _head(NULL), _tail(NULL) {};
-        ~list() = default;
+        list() : _size(0), _head(NULL), _tail(NULL)
+        {
+        };
+
+        list(const list& other) : list()
+        {
+            if (other._size == 0)
+                return;
+            this->_size = other._size;
+            this->_head = new_node();
+            node *n = this->_head;
+            node *prev = NULL;
+
+            for (auto node = other._head; node != NULL; node = node->next)
+            {
+                n->val = node->val;
+                n->prev = prev;
+                prev = n;
+
+                if (node->next)
+                {
+                    n->next = new_node();
+                    n = n->next;
+                } else
+                    this->_tail = n;
+            }
+        }
+
+        list(list&& other)
+            : _size(other._size),
+              _head(other._head),
+              _tail(other._tail)
+        {
+            other._size = 0;
+            other._head = NULL;
+            other._tail = NULL;
+        }
+
+        ~list()
+        {
+            if (this->_size == 0)
+                return;
+
+            for (auto node = this->_head; node;)
+            {
+                auto next = node->next;
+                delete node;
+                node = next;
+            }
+        };
 
         list<T>& push_back(const T& v)
         {
@@ -40,6 +89,7 @@ namespace dsa
         {
             return this->push_front_impl(v);
         }
+
         list<T>& push_front(T&& v)
         {
             return this->push_front_impl(std::move(v));
@@ -50,19 +100,20 @@ namespace dsa
             if (this->is_empty())
                 throw std::runtime_error("list::pop_back(): list is empty");
 
-            node *n = this->_tail;
+            node* n = this->_tail;
 
             if (this->_size == 1)
             {
                 this->_head = NULL;
                 this->_tail = NULL;
-            } else
+            }
+            else
             {
                 this->_tail = n->prev;
                 this->_tail->next = NULL;
             }
 
-            auto val = n->val;
+            auto val = std::move(n->val);
             delete n;
 
             --this->_size;
@@ -75,19 +126,20 @@ namespace dsa
             if (this->is_empty())
                 throw std::runtime_error("list::pop_front(): list is empty");
 
-            auto *n = this->_head;
+            auto* n = this->_head;
 
             if (this->_size == 1)
             {
                 this->_head = NULL;
                 this->_tail = NULL;
-            } else
+            }
+            else
             {
                 this->_head = n->next;
                 this->_head->prev = NULL;
             }
 
-            auto val = n->val;
+            auto val = std::move(n->val);
             delete n;
 
             --this->_size;
@@ -108,7 +160,7 @@ namespace dsa
             return itr(this->_head);
         }
 
-        const itr& head() const
+        itr head() const
         {
             if (this->is_empty())
                 return itr();
@@ -124,7 +176,7 @@ namespace dsa
             return itr(this->_tail);
         }
 
-        const itr& tail() const
+        itr tail() const
         {
             if (this->is_empty())
                 return itr();
@@ -137,13 +189,32 @@ namespace dsa
             return this->_size == 0;
         };
 
+        itr find(const T& target) const
+        {
+            return this->find([&target](const T& v)
+            {
+                return v == target;
+            });
+        }
+
+        itr find(find_func f) const
+        {
+            for (auto it = this->head(); it; it = it.next())
+            {
+                if (f(it.value()))
+                    return it;
+            }
+
+            return itr();
+        }
+
     private:
         std::size_t _size;
-        node *_head;
-        node *_tail;
+        node* _head;
+        node* _tail;
 
         template <typename U>
-        list<T> &push_back_impl(U&& v)
+        list<T>& push_back_impl(U&& v)
         {
             auto n = new_node(std::forward<U>(v));
 
@@ -151,7 +222,8 @@ namespace dsa
             {
                 this->_head = n;
                 this->_tail = n;
-            } else
+            }
+            else
             {
                 n->prev = this->_tail;
                 this->_tail->next = n;
@@ -163,7 +235,7 @@ namespace dsa
         }
 
         template <typename U>
-        list<T> &push_front_impl(U&& v)
+        list<T>& push_front_impl(U&& v)
         {
             auto n = new_node(std::forward<U>(v));
 
@@ -171,7 +243,8 @@ namespace dsa
             {
                 this->_head = n;
                 this->_tail = n;
-            } else
+            }
+            else
             {
                 n->next = this->_head;
                 this->_head->prev = n;
@@ -194,22 +267,28 @@ namespace dsa
             };
         };
 
-        node *new_node(const T &val)
+        node* new_node()
         {
-            node *n = new node;
+            node* n = new node;
+            n->val = T{};
+            return n;
+        }
+
+        node* new_node(const T& val)
+        {
+            node* n = new node;
             n->val = val;
             return n;
         }
 
-        node *new_node(T&& val)
+        node* new_node(T&& val)
         {
-            node *n = new node;
+            node* n = new node;
             n->val = std::move(val);
             return n;
         }
 
     public:
-
         class itr
         {
         public:
@@ -223,22 +302,30 @@ namespace dsa
 
             ~itr() = default;
 
-            itr& next()
+            itr& operator++()
             {
-                if (this->_node == NULL)
-                    throw std::runtime_error("node is null");
-
+                this->check_node("operator++");
                 this->_node = this->_node->next;
                 return *this;
             }
 
-            itr& prev()
+            itr& operator--()
             {
-                if (this->_node == NULL)
-                    throw std::runtime_error("node is null");
-
+                this->check_node("operator--");
                 this->_node = this->_node->prev;
                 return *this;
+            }
+
+            itr next() const
+            {
+                this->check_node("next()");
+                return itr(this->_node->next);
+            }
+
+            itr prev() const
+            {
+                this->check_node("prev()");
+                return itr(this->_node->prev);
             }
 
             explicit operator bool() const
@@ -246,14 +333,14 @@ namespace dsa
                 return this->_node != NULL;
             }
 
-            T value()
+            T& value()
             {
                 this->check_node("T value()");
 
                 return this->_node->val;
             }
 
-            const T &value() const
+            const T& value() const
             {
                 this->check_node("const T &value()");
                 return this->_node->val;
@@ -262,7 +349,7 @@ namespace dsa
         private:
             node* _node;
 
-            void check_node(const char *where) const
+            void check_node(const char* where) const
             {
                 const str msg = str(where) + " : node is null";
                 if (this->_node == NULL)
